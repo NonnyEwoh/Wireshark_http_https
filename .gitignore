@@ -1,0 +1,14 @@
+# Packet captures may contain credentials, cookies, and private traffic.
+*.pcap
+*.pcapng
+*.cap
+
+# Local exports and temporary files
+*.tmp
+*.swp
+.DS_Store
+Thumbs.db
+
+# Keep folders in Git using .gitkeep files; do not commit secrets.
+.env
+.env.*

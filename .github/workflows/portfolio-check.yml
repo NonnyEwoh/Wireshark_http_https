@@ -1,0 +1,51 @@
+name: Portfolio documentation check
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check-documentation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Verify required portfolio files and folders
+        shell: bash
+        run: |
+          set -euo pipefail
+          required_files=(
+            "README.md"
+            "docs/lab-workflow.md"
+            "docs/safety-and-scope.md"
+            "docs/findings-template.md"
+            "screenshots/README.md"
+            "captures/README.md"
+            "reports/README.md"
+            "reports/findings.md"
+            "notes/README.md"
+          )
+          for file in "${required_files[@]}"; do
+            if [[ ! -s "$file" ]]; then
+              echo "::error file=$file::Required file is missing or empty"
+              exit 1
+            fi
+            echo "OK: $file"
+          done
+
+      - name: Check for raw packet captures accidentally added
+        shell: bash
+        run: |
+          set -euo pipefail
+          if find . -type f \( -iname '*.pcap' -o -iname '*.pcapng' -o -iname '*.cap' \) \
+            -not -path './.git/*' | grep -q .; then
+            echo "::error::Raw packet capture found. Review it for sensitive data; do not commit captures."
+            exit 1
+          fi
+          echo "No raw packet capture files found."
